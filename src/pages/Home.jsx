@@ -4,55 +4,39 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useUser } from "@/context/UserContext";
+import { api } from "@/api";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const { user } = useUser();
+  const [news, setNews] = useState([])
+  const [tournaments, setTournaments] = useState([])
 
+  const getAllTorneios = async () => {
+    try {
+      const res = await api.get("/v1/api/torneio");
+      setTournaments(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const news = [
-    {
-      id: 1,
-      title: "Grandmaster Sarah Johnson Wins International Championship",
-      preview:
-        "In a stunning display of skill and strategy, Sarah Johnson clinched the title...",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 2,
-      title: "Young Prodigy Makes Waves in Junior Tournament",
-      preview:
-        "12-year-old Alex Chen has become the talk of the chess world after an impressive performance...",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 3,
-      title: "New AI Chess Engine Challenges Top Players",
-      preview:
-        "The latest AI chess engine, DeepKnight, has been making headlines by consistently defeating...",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ];
+  const getAllNoticias = async () => {
+    try {
+      const res = await api.get("/v1/api/noticia");
+      setNews(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const tournaments = [
-    {
-      id: 1,
-      name: "Global Chess Masters",
-      date: "August 15-20, 2023",
-      location: "New York, USA",
-    },
-    {
-      id: 2,
-      name: "European Chess Championship",
-      date: "September 5-12, 2023",
-      location: "Paris, France",
-    },
-    {
-      id: 3,
-      name: "Asian Chess Open",
-      date: "October 1-7, 2023",
-      location: "Tokyo, Japan",
-    },
-  ];
+  useEffect(() => {
+    getAllNoticias();
+    getAllTorneios();
+  }, [])
+  
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -79,14 +63,20 @@ export default function Home() {
                 whileTap={{ scale: 0.98 }}
               >
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  {tournament.name}
+                  {tournament.nome}
                 </h3>
-                <p className="text-gray-600 mb-1">{tournament.date}</p>
-                <p className="text-gray-600 mb-4">{tournament.location}</p>
+                <p className="text-gray-600 mb-1">{tournament.data
+                        ? new Date(tournament.data).toISOString().split("T")[0]
+                        : ""}</p>
+                <p className="text-gray-600 mb-4">{tournament.local}</p>
+                <Link
+                to="/tournaments"
+                >
                 <Button variant="outline" className="w-full">
-                  Participe
+                  Veja mais
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -105,21 +95,21 @@ export default function Home() {
                 whileTap={{ scale: 0.98 }}
               >
                 <img
-                  src={item.image}
-                  alt={item.title}
-                  width={300}
-                  height={200}
-                  className="w-full h-48 object-cover"
+                  src={item.imagem}
+                  alt={item.titulo}
+                  className="w-[300px] h-[200px] object-cover"
                 />
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {item.title}
+                    {item.titulo}
                   </h3>
-                  <p className="text-gray-600 mb-4">{item.preview}</p>
-                  <div className="text-blue-500 hover:text-blue-600 transition-colors inline-flex items-center">
+                  <p className="text-gray-600 mb-4">{item.conteudo}</p>
+                  <Link
+                  to="/news"
+                  className="text-blue-500 hover:text-blue-600 transition-colors inline-flex items-center">
                     Leia mais
                     <ChevronRight className="ml-1 h-4 w-4" />
-                  </div>
+                  </Link>
                 </div>
               </motion.div>
             ))}

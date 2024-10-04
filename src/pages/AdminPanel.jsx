@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
@@ -20,13 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -48,7 +40,7 @@ export default function AdminPanel() {
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
   const [participants, setParticipants] = useState([]);
 
-  // ok
+
   const handleCreateTournament = async (e) => {
     e.preventDefault();
 
@@ -78,7 +70,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const handleEditTournament = async (e) => {
     e.preventDefault();
     const updatedTournament = {
@@ -118,7 +110,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const handleDeleteTournament = async (id) => {
     try {
       await api.delete(`/v1/api/torneio/${id}`);
@@ -130,7 +122,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const handleCreateNews = async (e) => {
     e.preventDefault();
 
@@ -152,7 +144,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const handleEditNews = async (e) => {
     e.preventDefault();
 
@@ -179,7 +171,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const handleDeleteNews = async (id) => {
     try {
       await api.delete(`/v1/api/noticia/${id}`); // Faz a requisição DELETE para remover a notícia
@@ -191,7 +183,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const handleUpdateParticipantScore = async (id, idInscricao, pontos) => {
     // Atualiza o estado de participants
     setParticipants(
@@ -280,7 +272,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ok
+
   const getAllUsers = async () => {
     try {
       const res = await api.get("/v1/api/usuario");
@@ -289,7 +281,7 @@ export default function AdminPanel() {
       console.log(error);
     }
   };
-  // ok
+
   const getAllTorneios = async () => {
     try {
       const res = await api.get("/v1/api/torneio");
@@ -298,7 +290,7 @@ export default function AdminPanel() {
       console.log(error);
     }
   };
-  // ok
+
   const getAllNoticias = async () => {
     try {
       const res = await api.get("/v1/api/noticia");
@@ -308,7 +300,7 @@ export default function AdminPanel() {
       console.log(error);
     }
   };
-  // ok
+
   const TorneioEscolhido = async () => {
     try {
       const res = await api.get(`/v1/api/torneio/${selectedTournament.id}`);
