@@ -3,8 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useUser } from "@/context/UserContext";
 
 export default function Home() {
+  const { user } = useUser();
+
+
   const news = [
     {
       id: 1,
@@ -54,10 +58,10 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-8 py-8">
         <section className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Bem-Vindo, usuario
+            Bem-Vindo, {user?.usuario?.nome}
           </h1>
           <p className="text-xl text-gray-600 mb-8">
             Descubra o mundo competitivo do jogo de damas

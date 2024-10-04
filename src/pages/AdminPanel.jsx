@@ -1,132 +1,352 @@
-import { useState } from 'react'
-import { Edit, Trash2, Eye, Plus  } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-
-import React from 'react'
-import Header from '@/components/Header'
+import { useEffect, useState } from "react";
+import { Edit, Trash2, Eye, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import React from "react";
+import Header from "@/components/Header";
+import { api } from "@/api";
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState('tournaments')
-  const [tournaments, setTournaments] = useState([
-    { id: 1, name: "Global Chess Masters", date: "2023-08-15", location: "New York, USA", participants: 128, prize: "$100,000" },
-    { id: 2, name: "European Chess Championship", date: "2023-09-05", location: "Paris, France", participants: 256, prize: "€75,000" },
-  ])
-  const [news, setNews] = useState([
-    { id: 1, title: "Grandmaster Sarah Johnson Wins International Championship", content: "In a stunning display of skill and strategy, Sarah Johnson clinched the title...", date: "2023-06-15" },
-    { id: 2, title: "Young Prodigy Makes Waves in Junior Tournament", content: "12-year-old Alex Chen has become the talk of the chess world after an impressive performance...", date: "2023-06-10" },
-  ])
-  const [selectedTournament, setSelectedTournament] = useState(null)
-  const [selectedNews, setSelectedNews] = useState(null)
-  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false)
-  const [isNewsModalOpen, setIsNewsModalOpen] = useState(false)
-  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false)
-  const [participants, setParticipants] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", rating: 2200, score: 0 },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", rating: 2300, score: 0 },
-  ])
+  const [activeTab, setActiveTab] = useState("tournaments");
+  const [tournaments, setTournaments] = useState([]);
+  const [news, setNews] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [selectedNews, setSelectedNews] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+  const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
+  const [participants, setParticipants] = useState([]);
 
-  const handleCreateTournament = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
+  // ok
+  const handleCreateTournament = async (e) => {
+    e.preventDefault();
+
+    // Cria o objeto newTournament a partir dos dados do formulário
     const newTournament = {
-      id: tournaments.length + 1,
-      name: formData.get('name'),
-      date: formData.get('date'),
-      location: formData.get('location'),
-      participants: parseInt(formData.get('participants')),
-      prize: formData.get('prize'),
-    }
-    setTournaments([...tournaments, newTournament])
-    setIsTournamentModalOpen(false)
-    toast.success('Tournament created successfully!')
-  }
+      nome: e.target.nome.value,
+      data: e.target.data.value,
+      local: e.target.local.value,
+      quantidadeParticipantes: parseInt(e.target.quantidadeParticipantes.value),
+      premio: parseFloat(e.target.premio.value),
+    };
 
-  const handleEditTournament = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
+    // Envia os dados do torneio criado para o backend como JSON
+    try {
+      const response = await api.post("/v1/api/torneio", newTournament);
+      console.log(response.data);
+
+      // Atualiza o estado local dos torneios
+      setTournaments([...tournaments, newTournament]);
+
+      // Fecha o modal
+      setIsTournamentModalOpen(false);
+      toast.success("Torneio criado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao criar torneio");
+    }
+  };
+
+  // ok
+  const handleEditTournament = async (e) => {
+    e.preventDefault();
     const updatedTournament = {
       ...selectedTournament,
-      name: formData.get('name'),
-      date: formData.get('date'),
-      location: formData.get('location'),
-      participants: parseInt(formData.get('participants')),
-      prize: formData.get('prize'),
+      name: e.target.nome.value,
+      date: e.target.data.value,
+      location: e.target.local.value,
+      quantidadeParticipantes: parseInt(e.target.quantidadeParticipantes.value),
+      premio: e.target.premio.value,
+    };
+
+    // Atualiza o estado local dos torneios
+    setTournaments(
+      tournaments.map((t) =>
+        t.id === updatedTournament.id ? updatedTournament : t
+      )
+    );
+
+    // Envia os dados do torneio atualizado para o backend como JSON
+    try {
+      const response = await api.put(
+        `/v1/api/torneio/${updatedTournament.id}`,
+        updatedTournament
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update tournament");
+      }
+
+      // Fecha o modal e reseta o torneio selecionado
+      setIsTournamentModalOpen(false);
+      setSelectedTournament(null);
+      toast.success("Tournament updated successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update tournament");
     }
-    setTournaments(tournaments.map(t => t.id === updatedTournament.id ? updatedTournament : t))
-    setIsTournamentModalOpen(false)
-    setSelectedTournament(null)
-    toast.success('Tournament updated successfully!')
-  }
+  };
 
-  const handleDeleteTournament = (id) => {
-    setTournaments(tournaments.filter(t => t.id !== id))
-    toast.success('Tournament deleted successfully!')
-  }
+  // ok
+  const handleDeleteTournament = async (id) => {
+    try {
+      await api.delete(`/v1/api/torneio/${id}`);
+      toast.success("Torneio Deletado com sucesso!");
+      setTournaments(tournaments.filter((t) => t.id !== id));
+    } catch (error) {
+      console.log(error);
+      toast.error("Erro ao deletar torneio!");
+    }
+  };
 
-  const handleCreateNews = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
+  // ok
+  const handleCreateNews = async (e) => {
+    e.preventDefault();
+
     const newNews = {
-      id: news.length + 1,
-      title: formData.get('title'),
-      content: formData.get('content'),
-      date: new Date().toISOString().split('T')[0],
-    }
-    setNews([...news, newNews])
-    setIsNewsModalOpen(false)
-    toast.success('News article created successfully!')
-  }
+      titulo: e.target.titulo.value,
+      imagem: e.target.imagem.value,
+      conteudo: e.target.conteudo.value,
+      autor: e.target.autor.value,
+    };
 
-  const handleEditNews = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
+    try {
+      await api.post("/v1/api/noticia", newNews);
+      setNews([...news, newNews]);
+      setIsNewsModalOpen(false);
+      toast.success("Artigo publicado");
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao criar artigo");
+    }
+  };
+
+  // ok
+  const handleEditNews = async (e) => {
+    e.preventDefault();
+
     const updatedNews = {
       ...selectedNews,
-      title: formData.get('title'),
-      content: formData.get('content'),
+      titulo: e.target.titulo.value,
+      conteudo: e.target.conteudo.value,
+      imagem: e.target.imagem.value,
+      autor: e.target.autor.value,
+    };
+
+    try {
+      const response = await api.put(
+        `/v1/api/noticia/${updatedNews.id}`,
+        updatedNews
+      );
+      setNews(news.map((n) => (n.id === updatedNews.id ? response.data : n))); // Usa a resposta do servidor para atualizar a notícia
+      setIsNewsModalOpen(false);
+      setSelectedNews(null);
+      toast.success("Notícia atualizada com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao atualizar a notícia");
     }
-    setNews(news.map(n => n.id === updatedNews.id ? updatedNews : n))
-    setIsNewsModalOpen(false)
-    setSelectedNews(null)
-    toast.success('News article updated successfully!')
-  }
+  };
 
-  const handleDeleteNews = (id) => {
-    setNews(news.filter(n => n.id !== id))
-    toast.success('News article deleted successfully!')
-  }
+  // ok
+  const handleDeleteNews = async (id) => {
+    try {
+      await api.delete(`/v1/api/noticia/${id}`); // Faz a requisição DELETE para remover a notícia
+      setNews(news.filter((n) => n.id !== id));
+      toast.success("Notícia deletada!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao deletar a notícia");
+    }
+  };
 
-  const handleUpdateParticipantScore = (id, score) => {
-    setParticipants(participants.map(p => p.id === id ? { ...p, score: parseInt(score) } : p))
-    toast.success('Participant score updated successfully!')
-  }
+  // ok
+  const handleUpdateParticipantScore = async (id, idInscricao, pontos) => {
+    // Atualiza o estado de participants
+    setParticipants(
+      participants.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              Inscricao: {
+                ...p.Inscricao,
+                pontos: parseInt(pontos),
+              },
+            }
+          : p
+      )
+    );
+    try {
+      await api.put(`/v1/api/inscricao/${idInscricao}`, {
+        pontos: parseInt(pontos),
+      });
+      toast.success("Pontuação do participante atualizada com sucesso!");
+    } catch (error) {
+      toast.error("Falha ao atualizar a pontuação do participante");
+    }
+  };
 
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+
+    const newUser = {
+      nome: e.target.nome.value,
+      email: e.target.email.value,
+      apelido: e.target.apelido.value,
+      senha: e.target.senha.value,
+      avatar: e.target.avatar.value,
+      roles: e.target.roles.value,
+    };
+
+    console.log("newUser", newUser);
+
+    try {
+      const response = await api.post("/v1/api/usuario", newUser);
+      setUsers([...users, response.data]);
+      setIsUserModalOpen(false);
+      toast.success("Usuário criado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao criar usuário");
+    }
+  };
+
+  const handleEditUser = async (e) => {
+    e.preventDefault();
+    const updatedUser = {
+      ...selectedUser,
+      nome: e.target.nome.value,
+      email: e.target.email.value,
+      apelido: e.target.apelido.value,
+      senha: e.target.senha.value,
+      avatar: e.target.avatar.value,
+      roles: e.target.roles.value,
+    };
+
+    try {
+      const response = await api.put(
+        `/v1/api/usuario/${updatedUser.id}`,
+        updatedUser
+      );
+      setUsers(users.map((u) => (u.id === updatedUser.id ? response.data : u)));
+      setIsUserModalOpen(false);
+      setSelectedUser(null);
+      toast.success("Usuário atualizado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao atualizar usuário");
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await api.delete(`/v1/api/usuario/${id}`);
+      setUsers(users.filter((u) => u.id !== id));
+      toast.success("Usuário deletado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao deletar usuário");
+    }
+  };
+
+  // ok
+  const getAllUsers = async () => {
+    try {
+      const res = await api.get("/v1/api/usuario");
+      setUsers(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // ok
+  const getAllTorneios = async () => {
+    try {
+      const res = await api.get("/v1/api/torneio");
+      setTournaments(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // ok
+  const getAllNoticias = async () => {
+    try {
+      const res = await api.get("/v1/api/noticia");
+      console.log("notcias", res.data);
+      setNews(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // ok
+  const TorneioEscolhido = async () => {
+    try {
+      const res = await api.get(`/v1/api/torneio/${selectedTournament.id}`);
+      setParticipants(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllUsers();
+    getAllTorneios();
+    getAllNoticias();
+  }, []);
+
+  useEffect(() => {
+    TorneioEscolhido(selectedTournament?.id);
+  }, [selectedTournament]);
 
   return (
     <div className="min-h-screen bg-gray-50">
-        <Header />
-
-        <main className="container mx-auto px-4 py-8">
+      <Header />
+      <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="tournaments">Torneios</TabsTrigger>
             <TabsTrigger value="news">Noticias</TabsTrigger>
+            <TabsTrigger value="users">Usuários</TabsTrigger>
           </TabsList>
           <TabsContent value="tournaments">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Torneios</h2>
-              <Button onClick={() => setIsTournamentModalOpen(true)}>
+              <Button
+                onClick={() => {
+                  setSelectedTournament(null);
+                  setIsTournamentModalOpen(true);
+                }}
+              >
                 <Plus className="mr-2 h-4 w-4" /> Criar Torneio
               </Button>
             </div>
@@ -144,26 +364,42 @@ export default function AdminPanel() {
               <TableBody>
                 {tournaments.map((tournament) => (
                   <TableRow key={tournament.id}>
-                    <TableCell>{tournament.name}</TableCell>
-                    <TableCell>{tournament.date}</TableCell>
-                    <TableCell>{tournament.location}</TableCell>
-                    <TableCell>{tournament.participants}</TableCell>
-                    <TableCell>{tournament.prize}</TableCell>
+                    <TableCell>{tournament.nome}</TableCell>
+                    <TableCell>
+                      {tournament.data
+                        ? new Date(tournament.data).toISOString().split("T")[0]
+                        : ""}
+                    </TableCell>
+                    <TableCell>{tournament.local}</TableCell>
+                    <TableCell>{tournament.quantidadeParticipantes}</TableCell>
+                    <TableCell>R$ {tournament.premio}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="icon" onClick={() => {
-                          setSelectedTournament(tournament)
-                          setIsTournamentModalOpen(true)
-                        }}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedTournament(tournament);
+                            setIsTournamentModalOpen(true);
+                          }}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => handleDeleteTournament(tournament.id)}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteTournament(tournament.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => {
-                          setSelectedTournament(tournament)
-                          setIsParticipantsModalOpen(true)
-                        }}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedTournament(tournament);
+                            setIsParticipantsModalOpen(true);
+                          }}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                       </div>
@@ -176,7 +412,12 @@ export default function AdminPanel() {
           <TabsContent value="news">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Noticias</h2>
-              <Button onClick={() => setIsNewsModalOpen(true)}>
+              <Button
+                onClick={() => {
+                  setSelectedNews(null);
+                  setIsNewsModalOpen(true);
+                }}
+              >
                 <Plus className="mr-2 h-4 w-4" /> Criar Noticia
               </Button>
             </div>
@@ -191,24 +432,89 @@ export default function AdminPanel() {
               <TableBody>
                 {news.map((article) => (
                   <TableRow key={article.id}>
-                    <TableCell>{article.title}</TableCell>
-                    <TableCell>{article.date}</TableCell>
+                    <TableCell>{article.titulo}</TableCell>
+                    <TableCell>{article.autor}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="icon" onClick={() => {
-                          setSelectedNews(article)
-                          setIsNewsModalOpen(true)
-                        }}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedNews(article);
+                            setIsNewsModalOpen(true);
+                          }}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => handleDeleteNews(article.id)}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteNews(article.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => {
-                          setSelectedNews(article)
-                          setIsNewsModalOpen(true)
-                        }}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedNews(article);
+                            setIsNewsModalOpen(true);
+                          }}
+                        >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+          <TabsContent value="users">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Usuários</h2>
+              <Button
+                onClick={() => {
+                  setSelectedUser(null);
+                  setIsUserModalOpen(true);
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" /> Criar Usuário
+              </Button>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Apelido</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.nome}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.apelido}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsUserModalOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -220,36 +526,82 @@ export default function AdminPanel() {
         </Tabs>
       </main>
 
-      <Dialog open={isTournamentModalOpen} onOpenChange={setIsTournamentModalOpen}>
+      <Dialog
+        open={isTournamentModalOpen}
+        onOpenChange={setIsTournamentModalOpen}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedTournament ? 'Edit Tournament' : 'Create Tournament'}</DialogTitle>
+            <DialogTitle>
+              {selectedTournament ? "Editar Torneio" : "Criar Torneio"}
+            </DialogTitle>
           </DialogHeader>
-          <form onSubmit={selectedTournament ? handleEditTournament : handleCreateTournament}>
+          <form
+            onSubmit={
+              selectedTournament ? handleEditTournament : handleCreateTournament
+            }
+          >
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Nome</Label>
-                <Input id="name" name="name" defaultValue={selectedTournament?.name} required />
+                <Input
+                  id="nome"
+                  name="nome"
+                  defaultValue={selectedTournament?.nome}
+                  required
+                />
               </div>
               <div>
-                <Label htmlFor="date">Data</Label>
-                <Input id="date" name="date" type="date" defaultValue={selectedTournament?.date} required />
+                <Label htmlFor="data">Data</Label>
+                <Input
+                  id="data"
+                  name="data"
+                  type="date"
+                  defaultValue={
+                    selectedTournament?.data
+                      ? new Date(selectedTournament.data)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  required
+                />
               </div>
               <div>
-                <Label htmlFor="location">Localização</Label>
-                <Input id="location" name="location" defaultValue={selectedTournament?.location} required />
+                <Label htmlFor="local">Localização</Label>
+                <Input
+                  id="local"
+                  name="local"
+                  defaultValue={selectedTournament?.local}
+                  required
+                />
               </div>
               <div>
-                <Label htmlFor="participants">nº Participantes</Label>
-                <Input id="participants" name="participants" type="number" defaultValue={selectedTournament?.participants} required />
+                <Label htmlFor="quantidadeParticipantes">
+                  nº Participantes
+                </Label>
+                <Input
+                  id="quantidadeParticipantes"
+                  name="quantidadeParticipantes"
+                  type="number"
+                  defaultValue={selectedTournament?.quantidadeParticipantes}
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="prize">Prêmio</Label>
-                <Input id="prize" name="prize" defaultValue={selectedTournament?.prize} required />
+                <Input
+                  id="premio"
+                  name="premio"
+                  defaultValue={selectedTournament?.premio}
+                  required
+                />
               </div>
             </div>
             <DialogFooter className="mt-6">
-              <Button type="submit">{selectedTournament ? 'Update' : 'Create'}</Button>
+              <Button type="submit">
+                {selectedTournament ? "Atualizar" : "Criar"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -258,36 +610,72 @@ export default function AdminPanel() {
       <Dialog open={isNewsModalOpen} onOpenChange={setIsNewsModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedNews ? 'Edit News Article' : 'Create News Article'}</DialogTitle>
+            <DialogTitle>
+              {selectedNews ? "Editar Artigo" : "Criar artigo"}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={selectedNews ? handleEditNews : handleCreateNews}>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">Título</Label>
-                <Input id="title" name="title" defaultValue={selectedNews?.title} required />
+                <Label htmlFor="imagem">Link imagem</Label>
+                <Input
+                  id="imagem"
+                  name="imagem"
+                  defaultValue={selectedNews?.imagem}
+                  required
+                />
               </div>
               <div>
-                <Label htmlFor="content">Conteúdo</Label>
-                <Textarea id="content" name="content" defaultValue={selectedNews?.content} required />
+                <Label htmlFor="autor">Autor</Label>
+                <Input
+                  id="autor"
+                  name="autor"
+                  defaultValue={selectedNews?.autor}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="titulo">Título</Label>
+                <Input
+                  id="titulo"
+                  name="titulo"
+                  defaultValue={selectedNews?.titulo}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="conteudo">Conteúdo</Label>
+                <Textarea
+                  id="conteudo"
+                  name="conteudo"
+                  defaultValue={selectedNews?.conteudo}
+                  required
+                />
               </div>
             </div>
             <DialogFooter className="mt-6">
-              <Button type="submit">{selectedNews ? 'Update' : 'Create'}</Button>
+              <Button type="submit">
+                {selectedNews ? "Atualizar" : "Editar"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isParticipantsModalOpen} onOpenChange={setIsParticipantsModalOpen}>
+      <Dialog
+        open={isParticipantsModalOpen}
+        onOpenChange={setIsParticipantsModalOpen}
+      >
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Participantes - {selectedTournament?.name}</DialogTitle>
+            <DialogTitle>
+              Participantes - {selectedTournament?.nome}
+            </DialogTitle>
           </DialogHeader>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Apelido</TableHead>
                 <TableHead>Pontuação</TableHead>
                 <TableHead>Definir pontuação</TableHead>
@@ -296,21 +684,28 @@ export default function AdminPanel() {
             <TableBody>
               {participants.map((participant) => (
                 <TableRow key={participant.id}>
-                  <TableCell>{participant.name}</TableCell>
-                  <TableCell>{participant.email}</TableCell>
-                  <TableCell>{participant.rating}</TableCell>
-                  <TableCell>{participant.score}</TableCell>
+                  <TableCell>{participant.nome}</TableCell>
+                  <TableCell>{participant.apelido}</TableCell>
+                  <TableCell>{participant.pontuacaoTotal}</TableCell>
+                  <TableCell>{participant.Inscricao?.pontos}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Input
                         type="number"
                         className="w-16"
-                        defaultValue={participant.score}
-                        onChange={(e) => handleUpdateParticipantScore(participant.id, e.target.value)}
+                        defaultValue={participant?.Inscricao?.pontos}
+                        onBlur={(e) => {
+                          const newPontos = parseInt(e.target.value);
+                          // Somente chama a função se o valor tiver sido alterado
+                          if (newPontos !== participant?.Inscricao?.pontos) {
+                            handleUpdateParticipantScore(
+                              participant.id,
+                              participant.Inscricao?.id,
+                              newPontos
+                            );
+                          }
+                        }}
                       />
-                      <Button size="sm" onClick={() => handleUpdateParticipantScore(participant.id, participant.score)}>
-                        Update
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -320,8 +715,84 @@ export default function AdminPanel() {
         </DialogContent>
       </Dialog>
 
-      <ToastContainer />
+      <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedUser ? "Editar Usuário" : "Criar Usuário"}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={selectedUser ? handleEditUser : handleCreateUser}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="nome">Nome</Label>
+                <Input
+                  id="nome"
+                  name="nome"
+                  defaultValue={selectedUser?.nome}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={selectedUser?.email}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="apelido">Apelido</Label>
+                <Input
+                  id="apelido"
+                  name="apelido"
+                  defaultValue={selectedUser?.apelido}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="senha">Senha</Label>
+                <Input
+                  id="senha"
+                  name="senha"
+                  type="password"
+                  defaultValue={selectedUser ? "" : undefined}
+                  required={!selectedUser} 
+                />
+              </div>
+              <div>
+                <Label htmlFor="avatar">Avatar</Label>
+                <Input
+                  id="avatar"
+                  name="avatar"
+                  type="string"
+                  defaultValue={selectedUser?.avatar}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="roles">Permissoes</Label>
+                <Input
+                  id="roles"
+                  name="roles"
+                  type="string"
+                  defaultValue={selectedUser?.roles}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-6">
+              <Button type="submit">
+                {selectedUser ? "Atualizar" : "Criar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
+      <ToastContainer />
     </div>
-  )
+  );
 }
