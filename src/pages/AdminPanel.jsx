@@ -127,8 +127,8 @@ export default function AdminPanel() {
     e.preventDefault();
 
     const newNews = {
-      titulo: e.target.titulo.value,
       imagem: e.target.imagem.value,
+      titulo: e.target.titulo.value,
       conteudo: e.target.conteudo.value,
       autor: e.target.autor.value,
     };
@@ -272,7 +272,6 @@ export default function AdminPanel() {
     }
   };
 
-
   const getAllUsers = async () => {
     try {
       const res = await api.get("/v1/api/usuario");
@@ -294,7 +293,6 @@ export default function AdminPanel() {
   const getAllNoticias = async () => {
     try {
       const res = await api.get("/v1/api/noticia");
-      console.log("notcias", res.data);
       setNews(res.data);
     } catch (error) {
       console.log(error);
@@ -319,6 +317,8 @@ export default function AdminPanel() {
   useEffect(() => {
     TorneioEscolhido(selectedTournament?.id);
   }, [selectedTournament]);
+
+  console.log(selectedNews)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -647,7 +647,7 @@ export default function AdminPanel() {
             </div>
             <DialogFooter className="mt-6">
               <Button type="submit">
-                {selectedNews ? "Atualizar" : "Editar"}
+                {selectedNews ? "Atualizar" : "Criar"}
               </Button>
             </DialogFooter>
           </form>

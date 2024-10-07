@@ -1,7 +1,5 @@
-import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import React from "react";
-
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,86 +21,63 @@ import {
 } from "@/components/ui/table";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { api } from "@/api";
+import { useUser } from "@/context/UserContext";
 
 export default function Tournaments() {
-  const tournaments = [
-    {
-      id: 1,
-      name: "Global Chess Masters",
-      date: "August 15-20, 2023",
-      location: "New York, USA",
-      participants: 128,
-      prize: "$100,000",
-      description:
-        "The Global Chess Masters is one of the most prestigious tournaments in the chess world, featuring top grandmasters from around the globe competing for a substantial prize pool.",
-    },
-    {
-      id: 2,
-      name: "European Chess Championship",
-      date: "September 5-12, 2023",
-      location: "Paris, France",
-      participants: 256,
-      prize: "€75,000",
-      description:
-        "The European Chess Championship brings together the best players from across Europe in a battle for continental supremacy and qualification spots for the World Chess Championship cycle.",
-    },
-    {
-      id: 3,
-      name: "Asian Chess Open",
-      date: "October 1-7, 2023",
-      location: "Tokyo, Japan",
-      participants: 200,
-      prize: "¥10,000,000",
-      description:
-        "The Asian Chess Open is a major tournament featuring top players from Asian countries, as well as invited international grandmasters, showcasing the strength of Asian chess.",
-    },
-    {
-      id: 4,
-      name: "Junior World Chess Championship",
-      date: "November 10-20, 2023",
-      location: "Moscow, Russia",
-      participants: 150,
-      prize: "$50,000",
-      description:
-        "The Junior World Chess Championship is the premier event for young chess prodigies, featuring the world's best players under 20 years old competing for the prestigious junior world title.",
-    },
-    {
-      id: 5,
-      name: "Chess Olympiad",
-      date: "December 1-15, 2023",
-      location: "Madrid, Spain",
-      participants: 3000,
-      prize: "Medals",
-      description:
-        "The Chess Olympiad is a biennial chess tournament where national teams from all over the world compete. It's one of the most important events in the chess calendar, often called the 'Chess Olympics'.",
-    },
-    {
-      id: 6,
-      name: "Candidates Tournament",
-      date: "January 5-25, 2024",
-      location: "London, UK",
-      participants: 8,
-      prize: "$500,000",
-      description:
-        "The Candidates Tournament determines the challenger for the World Chess Championship. Eight of the world's top grandmasters compete in a double round-robin format for a chance to challenge the reigning World Champion.",
-    },
-  ];
+  const { user } = useUser()
+
+  const [tournaments, setTournaments] = useState([])
   const [registrationOpen, setRegistrationOpen] = useState(false)
   const [selectedTournament, setSelectedTournament] = useState(null)
 
-  const handleRegistration = (e) => {
-    e.preventDefault()
-    console.log('Registering for tournament:', selectedTournament?.name)
-    setRegistrationOpen(false)
-    toast.success(`Confirmado!! Registrado para ${selectedTournament?.name}!`, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
+  const handleRegistration = async (idTorneio) => {
+    const usuarioId = user?.usuario?.id;
+    
+    try {
+      const res = await api.post("/v1/api/inscricao", {
+        usuarioId: usuarioId,
+        torneioId: idTorneio,
+        pontos: 0,
+      });
+      
+      toast.success(`Confirmado!! ${user?.usuario?.nome} registrado no torneio!`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      setRegistrationOpen(false);
+    } catch (error) {
+      console.error("Erro ao registrar no torneio", error);
+      toast.error("Falha ao registrar no torneio. Tente novamente.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  };
+
+  const getTournament = async() => {
+    try {
+      const res = await api.get("/v1/api/torneio")
+      setTournaments(res.data)
+    } catch (error) {
+      console.log(error)
+    }
   }
+
+
+  useEffect(() => {
+    getTournament()
+  }, [])
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -118,10 +93,10 @@ export default function Tournaments() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Participants</TableHead>
-                <TableHead>Prize</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Local</TableHead>
+                <TableHead>Participantes</TableHead>
+                <TableHead>Prêmio</TableHead>
                 <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -129,12 +104,14 @@ export default function Tournaments() {
               {tournaments.map((tournament) => (
                 <TableRow key={tournament.id}>
                   <TableCell className="font-medium">
-                    {tournament.name}
+                    {tournament.nome}
                   </TableCell>
-                  <TableCell>{tournament.date}</TableCell>
-                  <TableCell>{tournament.location}</TableCell>
-                  <TableCell>{tournament.participants}</TableCell>
-                  <TableCell>{tournament.prize}</TableCell>
+                  <TableCell>{tournament.data
+                        ? new Date(tournament.data).toISOString().split("T")[0]
+                        : ""}</TableCell>
+                  <TableCell>{tournament.local}</TableCell>
+                  <TableCell>{tournament.quantidadeParticipantes}</TableCell>
+                  <TableCell>{tournament.premio}</TableCell>
                   <TableCell>
                     <Button
                       size="sm"
@@ -156,16 +133,28 @@ export default function Tournaments() {
       <Dialog open={registrationOpen} onOpenChange={setRegistrationOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Registre-se em {selectedTournament?.name}</DialogTitle>
+            <DialogTitle>Registre-se em {selectedTournament?.nome}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleRegistration} className="space-y-4">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleRegistration(selectedTournament?.id);
+            }}
+          className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="player-name">Nome</Label>
-              <Input id="player-name" required />
+              <Label htmlFor="player-nome">Nome</Label>
+              <Input 
+              disabled
+              defaultValue={user?.usuario?.nome}
+              required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="player-email">Email</Label>
-              <Input id="player-email" type="email" required />
+              <Input 
+              disabled
+              defaultValue={user?.usuario?.email}
+              required
+              type="email"  />
             </div>
             <DialogFooter>
               <Button type="submit">Confirmar</Button>

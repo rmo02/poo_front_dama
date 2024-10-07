@@ -90,14 +90,14 @@ export default function Home() {
             {news.map((item) => (
               <motion.div
                 key={item.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
+                className="bg-white w-[20rem] rounded-lg shadow-md overflow-hidden"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <img
                   src={item.imagem}
                   alt={item.titulo}
-                  className="w-[300px] h-[200px] object-cover"
+                  className="w-[20rem] h-[200px] object-center"
                 />
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
