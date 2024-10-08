@@ -7,14 +7,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast, ToastContainer } from 'react-toastify'
+
 import 'react-toastify/dist/ReactToastify.css'
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 
 export default function ContactPage() {
     
@@ -25,7 +22,7 @@ export default function ContactPage() {
         const email = formData.get('email')
         const message = formData.get('message')
         console.log('Contact Form Data:', { name, email, message })
-        toast.success('Your message has been sent successfully!')
+        toast.success('Mensagem enviada com sucesso!')
         ;(e.target).reset()
     }
 

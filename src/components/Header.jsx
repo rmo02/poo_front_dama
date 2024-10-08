@@ -321,18 +321,36 @@ export default function Component() {
             className="md:hidden bg-white shadow-lg absolute top-16 left-0 right-0 z-50"
           >
             <nav className="flex flex-col items-center py-4 space-y-4">
-              <div className="text-gray-600 hover:text-gray-900 transition-colors">
-                Home
-              </div>
-              <div className="text-gray-600 hover:text-gray-900 transition-colors">
-                Campeonatos
-              </div>
-              <div className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+                to="/"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Inicio
+              </Link>
+              <Link
+                to="/tournaments"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Torneios
+              </Link>
+              <Link
+                to="/ranking"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 Classificação
-              </div>
-              <div className="text-gray-600 hover:text-gray-900 transition-colors">
+              </Link>
+              <Link
+                to="/news"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 Noticias
-              </div>
+              </Link>
+              <Link
+                to="/contact"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Contato
+              </Link>
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

@@ -56,10 +56,10 @@ export default function AdminPanel() {
     // Envia os dados do torneio criado para o backend como JSON
     try {
       const response = await api.post("/v1/api/torneio", newTournament);
-      console.log(response.data);
+      const createdTournament = response.data;
 
       // Atualiza o estado local dos torneios
-      setTournaments([...tournaments, newTournament]);
+      setTournaments([...tournaments, createdTournament]);
 
       // Fecha o modal
       setIsTournamentModalOpen(false);
@@ -75,11 +75,11 @@ export default function AdminPanel() {
     e.preventDefault();
     const updatedTournament = {
       ...selectedTournament,
-      name: e.target.nome.value,
-      date: e.target.data.value,
-      location: e.target.local.value,
+      nome: e.target.nome.value,
+      data: e.target.data.value,
+      local: e.target.local.value,
       quantidadeParticipantes: parseInt(e.target.quantidadeParticipantes.value),
-      premio: e.target.premio.value,
+      premio: parseFloat(e.target.premio.value),
     };
 
     // Atualiza o estado local dos torneios
@@ -95,18 +95,12 @@ export default function AdminPanel() {
         `/v1/api/torneio/${updatedTournament.id}`,
         updatedTournament
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to update tournament");
-      }
-
       // Fecha o modal e reseta o torneio selecionado
       setIsTournamentModalOpen(false);
       setSelectedTournament(null);
-      toast.success("Tournament updated successfully!");
+      toast.success("Torneio atualizado com sucesso!");
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to update tournament");
+      toast.error("Erro ao atualiizar torneio");
     }
   };
 
@@ -134,12 +128,13 @@ export default function AdminPanel() {
     };
 
     try {
-      await api.post("/v1/api/noticia", newNews);
-      setNews([...news, newNews]);
+      const response = await api.post("/v1/api/noticia", newNews);
+      const createdNews = response.data;
+      setNews([...news, createdNews]);
       setIsNewsModalOpen(false);
       toast.success("Artigo publicado");
     } catch (error) {
-      console.error(error);
+      console.error('deu error',error);
       toast.error("Falha ao criar artigo");
     }
   };
@@ -174,7 +169,7 @@ export default function AdminPanel() {
 
   const handleDeleteNews = async (id) => {
     try {
-      await api.delete(`/v1/api/noticia/${id}`); // Faz a requisição DELETE para remover a notícia
+      await api.delete(`/v1/api/noticia/${id}`); 
       setNews(news.filter((n) => n.id !== id));
       toast.success("Notícia deletada!");
     } catch (error) {
@@ -221,15 +216,14 @@ export default function AdminPanel() {
       roles: e.target.roles.value,
     };
 
-    console.log("newUser", newUser);
-
     try {
       const response = await api.post("/v1/api/usuario", newUser);
-      setUsers([...users, response.data]);
+      const  createdUser = response.data;
+      setUsers([...users, createdUser]);
+      setSelectedUser(null);
       setIsUserModalOpen(false);
       toast.success("Usuário criado com sucesso!");
     } catch (error) {
-      console.error(error);
       toast.error("Falha ao criar usuário");
     }
   };
@@ -318,7 +312,6 @@ export default function AdminPanel() {
     TorneioEscolhido(selectedTournament?.id);
   }, [selectedTournament]);
 
-  console.log(selectedNews)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -380,7 +373,10 @@ export default function AdminPanel() {
                         <Button
                           variant="outline"
                           size="icon"
-                          onClick={() => handleDeleteTournament(tournament.id)}
+                          onClick={() => {
+                            console.log(tournament.id)
+                            handleDeleteTournament(tournament.id)
+                          }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
