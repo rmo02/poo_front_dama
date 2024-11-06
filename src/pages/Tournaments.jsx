@@ -53,7 +53,7 @@ export default function Tournaments() {
       setRegistrationOpen(false);
     } catch (error) {
       console.error("Erro ao registrar no torneio", error);
-      toast.error("Falha ao registrar no torneio. Tente novamente.", {
+      toast.error(`Falha ao registrar no torneio. ${error.response.data.error}.`, {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -72,6 +72,7 @@ export default function Tournaments() {
       console.log(error)
     }
   }
+
 
 
   useEffect(() => {
@@ -162,6 +163,7 @@ export default function Tournaments() {
           </form>
         </DialogContent>
       </Dialog>
+
       <ToastContainer />
     </div>
   );

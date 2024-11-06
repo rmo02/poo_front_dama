@@ -666,7 +666,7 @@ export default function AdminPanel() {
                 <TableHead>Nome</TableHead>
                 <TableHead>Apelido</TableHead>
                 <TableHead>Pontuação</TableHead>
-                <TableHead>Definir pontuação</TableHead>
+                <TableHead>Pontuação definida</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
