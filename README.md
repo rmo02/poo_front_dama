@@ -1,8 +1,32 @@
-# React + Vite
+# Clone este repositório
+```bash
+$ git clone <https://github.com/rmo02/poo_front_dama.git>
+```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Acesse a pasta do projeto no terminal/cmd
+```bash
+$ cd poo_front_dama
+```
 
-Currently, two official plugins are available:
+# Instale as dependências
+```bash
+$ npm i
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Execute a aplicação em modo de desenvolvimento
+```bash
+$ npm run dev
+```
+# O projeto será inciado na porta:3000 - acesse <http://localhost:5173>
+
+# Para contribuiro no projeto
+```bash
+$ git branch NomeDaBranch
+$ git checkout NomeDaBranch
+```
+#Atualizar a sua Branch
+```bash
+$ git add .
+$ git commit -m "Nome da alteração/inclusão feita"
+$ git push origin NomeDaBranch
+```
