@@ -17,7 +17,7 @@ $ npm i
 ```bash
 $ npm run dev
 ```
-# O projeto será inciado na porta:3000 - acesse <http://localhost:5173>
+# O projeto será inciado na porta:5173 - acesse <http://localhost:5173>
 
 # Para contribuiro no projeto
 ```bash
